@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>QUTTY — мессенджер будущего</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #0a0a14;
+            color: #f1f1f5;
+            line-height: 1.4;
+            overflow-x: hidden;
+        }
+        .bg-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 20% 30%, #1e1a3a, #0a0a14);
+        }
+        .bg-glow::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 30% 40%, rgba(124, 58, 237, 0.2), transparent 70%);
+            animation: slowMove 20s infinite alternate ease-in-out;
+        }
+        @keyframes slowMove {
+            0% { transform: translate(0%, 0%) scale(1); opacity: 0.5; }
+            100% { transform: translate(5%, 5%) scale(1.2); opacity: 1; }
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 10, 20, 0.8);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            color: #b9b3d6;
+            text-decoration: none;
+            transition: 0.2s;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .nav-links a:hover { color: #c084fc; }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 60px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            background: #7c3aed;
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.4);
+        }
+        .btn-primary:hover {
+            background: #6d28d9;
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(124, 58, 237, 0.5);
+            color: #e0e7ff;
+        }
+        .btn-outline:hover {
+            background: rgba(124, 58, 237, 0.2);
+            border-color: #a78bfa;
+        }
+        .hero {
+            text-align: center;
+            padding: 4rem 0 3rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s forwards;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(124, 58, 237, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(124, 58, 237, 0.4);
+            border-radius: 100px;
+            padding: 0.4rem 1.2rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+        h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 0%, #c084fc 50%, #a855f7 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a5b4fc;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+        .feature-card {
+            background: rgba(15, 10, 30, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 1.8rem;
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            transition: 0.3s;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s forwards;
+        }
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+        .feature-card:hover {
+            border-color: rgba(124, 58, 237, 0.6);
+            transform: translateY(-5px);
+        }
+        .feature-icon { font-size: 2rem; margin-bottom: 1rem; color: #c084fc; }
+        .feature-card h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+        .feature-card p { color: #b9c3e6; line-height: 1.5; font-size: 0.9rem; }
+
+        .screenshots {
+            text-align: center;
+            margin: 5rem 0;
+        }
+        .screenshots h2 { font-size: 2rem; margin-bottom: 2rem; }
+        .mockup-grid {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .mockup {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 32px;
+            padding: 1.5rem;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            width: 260px;
+            transition: 0.3s;
+        }
+        .mockup:hover {
+            transform: translateY(-5px);
+            border-color: #7c3aed;
+        }
+        .phone-mock {
+            background: #1a1a2e;
+            border-radius: 24px;
+            padding: 1rem;
+            text-align: left;
+        }
+        .phone-mock i { margin-right: 8px; color: #c084fc; }
+
+        .cta {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(168,85,247,0.05));
+            border-radius: 48px;
+            padding: 3rem 2rem;
+            margin: 4rem 0;
+            backdrop-filter: blur(8px);
+        }
+        .cta h2 { font-size: 2rem; margin-bottom: 1rem; }
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            border-top: 1px solid rgba(124, 58, 237, 0.2);
+            margin-top: 2rem;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .footer-links a {
+            color: #928daf;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .footer-links a:hover { color: #c084fc; }
+
+        /* модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 32px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(124,58,237,0.5);
+            animation: fadeInUp 0.3s;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+        .modal-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(124,58,237,0.4);
+            border-radius: 60px;
+            padding: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #e0e7ff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .modal-btn:hover {
+            background: rgba(124,58,237,0.2);
+            border-color: #7c3aed;
+        }
+        .close-modal {
+            text-align: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #928daf;
+        }
+        .close-modal:hover { color: #fff; }
+
+        /* статус */
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(124,58,237,0.2);
+        }
+        .status-green { color: #4ade80; }
+        .status-red { color: #f87171; }
+        .status-yellow { color: #facc15; }
+
+        /* команда */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .team-card {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 24px;
+        }
+        .team-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1rem;
+            border: 2px solid #7c3aed;
+        }
+        .team-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .team-role {
+            font-size: 0.8rem;
+            color: #c084fc;
+            margin: 0.3rem 0;
+        }
+        .team-bio {
+            font-size: 0.75rem;
+            color: #928daf;
+        }
+
+        /* загрузка */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+        .download-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 24px;
+            padding: 1rem;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .download-card:hover {
+            background: rgba(124,58,237,0.2);
+        }
+        .download-card i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .soon {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 700px) {
+            .navbar { flex-direction: column; text-align: center; }
+            .hero { padding: 2rem 0; }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<div class="container">
+    <nav class="navbar">
+        <div class="logo">QUTTY</div>
+        <div class="nav-links">
+            <a href="#features"><i class="fas fa-star"></i> Особенности</a>
+            <a onclick="openModal('download')"><i class="fas fa-download"></i> Скачать</a>
+            <a onclick="openModal('status')"><i class="fas fa-chart-line"></i> Статус</a>
+            <a onclick="openModal('team')"><i class="fas fa-users"></i> Команда</a>
+            <a href="https://github.com/CabelManagments/qutty-messenger" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+            <a href="https://qutty-messenger.surge.sh" class="btn btn-primary"><i class="fas fa-external-link-alt"></i> Открыть веб</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="badge"><i class="fas fa-shield-alt"></i> работает без VPN / открытый код</div>
+        <h1>QUTTY</h1>
+        <div class="subtitle">Мессенджер, который не блокируют.<br>Вход по email или Telegram боту. Работает везде.</div>
+        <div class="cta-buttons">
+            <button onclick="openModal('download')" class="btn btn-primary"><i class="fas fa-download"></i> Скачать</button>
+            <button onclick="openModal('status')" class="btn btn-outline"><i class="fas fa-chart-line"></i> Статус</button>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+            <h3>Кроссплатформенность</h3>
+            <p>Веб, APK для Android, скоро десктоп (Windows/Linux/macOS).</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-lock"></i></div>
+            <h3>Без слежки</h3>
+            <p>Open source. Вход через email или @QuttyCodeBot — без номера телефона.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+            <h3>Мгновенно</h3>
+            <p>Realtime чаты, каналы, стикеры, гифки. Всё летает.</p>
+        </div>
+    </section>
+
+    <section id="screenshots" class="screenshots">
+        <h2><i class="fas fa-images"></i> Как это выглядит</h2>
+        <div class="mockup-grid">
+            <div class="mockup"><div class="phone-mock"><i class="fas fa-comment-dots"></i> Чат<br><i class="fas fa-image"></i> Медиа, стикеры</div></div>
+            <div class="mockup"><div class="phone-mock"><i class="fas fa-users"></i> Группы, каналы<br><i class="fas fa-tag"></i> Бейджи</div></div>
+            <div class="mockup"><div class="phone-mock"><i class="fas fa-envelope"></i> Вход по email<br><i class="fab fa-telegram"></i> Вход через Telegram</div></div>
+        </div>
+        <p style="margin-top: 1rem; color: #928daf;">Скоро живые скриншоты от дизайнера</p>
+    </section>
+
+    <footer>
+        <div class="footer-links">
+            <a onclick="openModal('download')"><i class="fas fa-download"></i> Скачать</a>
+            <a onclick="openModal('status')"><i class="fas fa-chart-line"></i> Статус</a>
+            <a onclick="openModal('team')"><i class="fas fa-users"></i> Команда</a>
+            <a href="https://github.com/CabelManagments/qutty-messenger"><i class="fab fa-github"></i> GitHub</a>
+        </div>
+        <p style="font-size: 0.7rem; color: #5a528a;">Сделано командой QUTTY · 2026</p>
+    </footer>
+</div>
+
+<!-- модальное окно -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <div class="close-modal" onclick="closeModal()">&times;</div>
+        <h3 id="modal-title"></h3>
+        <div id="modal-body"></div>
+    </div>
+</div>
+
+<script>
+    // ========== ДАННЫЕ ДЛЯ АВАТАРОК (ЗАМЕНИТЕ ССЫЛКИ) ==========
+    const teamData = [
+        { name: "Manager | Stars 1.3P", role: "Фронтенд разработчик", bio: "Веб, дизайн, координация", avatar: "https://files.catbox.moe/gp5m7w.jpg" },
+        { name: "Alian History", role: "Бэкенд разработчик", bio: "Серверы, API, боты", avatar: "https://files.catbox.moe/lux2s3.jpg" },
+        { name: "#M..m@fi-i.", role: "Дизайнер", bio: "Макеты, UX, стили", avatar: "https://files.catbox.moe/o04s33.jpg" },
+        { name: "jealleal", role: "Тестер", bio: "Баги, нагрузка, стабильность", avatar: "https://files.catbox.moe/awj54i.jpg" }
+    ];
+
+    const statusData = [
+        { name: "Сайт (Surge)", status: "online", ping: "OK" },
+        { name: "Бэкенд (Supabase)", status: "online", ping: "45ms" },
+        { name: "Telegram бот", status: "online", ping: "OK" },
+        { name: "Android APK", status: "online", ping: "скачать" },
+        { name: "WebView приложение", status: "online", ping: "OK" }
+    ];
+
+    const downloadData = [
+        { name: "🌐 Веб-версия", url: "https://qutty-messenger.surge.sh", icon: "fas fa-globe", soon: false },
+        { name: "📱 Android APK", url: "https://t.me/qutty_news", icon: "fab fa-android", soon: false },
+        { name: "🪟 Windows", icon: "fab fa-windows", soon: true },
+        { name: "🐧 Linux (AppImage)", icon: "fab fa-linux", soon: true },
+        { name: "🍎 macOS", icon: "fab fa-apple", soon: true }
+    ];
+
+    function openModal(type) {
+        const modal = document.getElementById('modal');
+        const title = document.getElementById('modal-title');
+        const body = document.getElementById('modal-body');
+        
+        if (type === 'status') {
+            title.innerText = "Статус сервисов";
+            body.innerHTML = statusData.map(s => `
+                <div class="status-item">
+                    <span>${s.name}</span>
+                    <span class="status-${s.status === 'online' ? 'green' : 'red'}">
+                        <i class="fas fa-${s.status === 'online' ? 'check-circle' : 'exclamation-circle'}"></i> ${s.status === 'online' ? 'работает' : 'сбой'} ${s.ping ? `(${s.ping})` : ''}
+                    </span>
+                </div>
+            `).join('');
+        }
+        else if (type === 'team') {
+            title.innerText = "Команда QUTTY";
+            body.innerHTML = `
+                <div class="team-grid">
+                    ${teamData.map(m => `
+                        <div class="team-card">
+                            <img class="team-avatar" src="${m.avatar}" alt="${m.name}">
+                            <div class="team-name">${m.name}</div>
+                            <div class="team-role">${m.role}</div>
+                            <div class="team-bio">${m.bio}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <p style="text-align: center; margin-top: 1rem; font-size: 0.7rem; color: #928daf;">Аватарки — заглушки. Замените ссылки в коде teamData.</p>
+            `;
+        }
+        else if (type === 'download') {
+            title.innerText = "Скачать QUTTY";
+            body.innerHTML = `
+                <div class="download-grid">
+                    ${downloadData.map(d => `
+                        <a href="${d.url || '#'}" target="${d.url ? '_blank' : '_self'}" class="download-card ${d.soon ? 'soon' : ''}" ${d.soon ? 'onclick="return false;"' : ''}>
+                            <i class="${d.icon}"></i>
+                            <strong>${d.name}</strong>
+                            ${d.soon ? '<br><span style="font-size:0.7rem;">скоро</span>' : ''}
+                        </a>
+                    `).join('')}
+                </div>
+            `;
+        }
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('modal');
+        if (event.target === modal) closeModal();
+    }
+</script>
+</body>
+</html>
